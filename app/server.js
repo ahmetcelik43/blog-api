@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
-const PORT =443;
+const PORT = 443;
 //const functions = require("firebase-functions");
 const config=require('./config')
 
@@ -31,7 +31,7 @@ app.get("/fake-pass", async(request, response, next) => {
         });
     })
     //exports.app = functions.https.onRequest(app);
-app.listen(PORT,"https://blog-api43.herokuapp.com",() => {
+app.listen(PORT,"blog-api43.herokuapp.com",() => {
     console.log("Sunucu Başarılı bir şekilde çalışıyor..." + " port:" + PORT);
 });
 // const mysql = require('mysql');
