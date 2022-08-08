@@ -7,7 +7,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 const PORT = process.env.PORT || 80;
-const functions = require("firebase-functions");
+//const functions = require("firebase-functions");
 
 
 app.use("/auth", require("../router/auth"));
@@ -18,22 +18,22 @@ app.use("/cats", require("../router/cats"));
 app.use("/tags", require("../middleware/verify"));
 app.use("/tags", require("../router/tag"));
 
-app.get("/",async(request, response, next) => {
-  response.send('OK')
+app.get("/", async(request, response, next) => {
+    response.send('OK')
 })
-app.get("/fake-pass",async(request, response, next) => {
-  const {password} = request.body;
-  console.log(request.body)
-  const hashedPass = await bcrypt.hash(request.body.password, 10)
-  response.json({
-    status: true,
-    hashedPass
-  });
-})
-exports.app = functions.https.onRequest(app);
-// app.listen(PORT, () => {
-//   console.log("Sunucu Başarılı bir şekilde çalışıyor..."+" port:"+PORT);
-// });
+app.get("/fake-pass", async(request, response, next) => {
+        const { password } = request.body;
+        console.log(request.body)
+        const hashedPass = await bcrypt.hash(request.body.password, 10)
+        response.json({
+            status: true,
+            hashedPass
+        });
+    })
+    //exports.app = functions.https.onRequest(app);
+app.listen(PORT, () => {
+    console.log("Sunucu Başarılı bir şekilde çalışıyor..." + " port:" + PORT);
+});
 // const mysql = require('mysql');
 // const webPush = require("web-push");
 //const vapidKeys = webPush.generateVAPIDKeys();
@@ -76,5 +76,5 @@ exports.app = functions.https.onRequest(app);
 //     });
 //   });
 // console.log('ok');
-  /*
-  {"endpoint":"https://fcm.googleapis.com/fcm/send/czmAx9qMoQE:APA91bGfMbCuWKFWDzMQ8skn76jxJptSrmN3w7M8gF7wR5NGX2ZBzZVR_buyXnWGCKFGEKJ_4Vp-YkDg6TJWG2Ir8U0MeNls997-PPMEb8GnxpZcoXmTXgY91YYDO2zNteGpI3gs5iwO","expirationTime":null,"keys":{"p256dh":"BJ6CnGvYd0p4tOcNCR22ytEaWkLaqZXFmHo9bycAwVb_iCkKA5-dYUxDpM1-IUMhJrgdfExtVgz6zEK1BgvCqqg","auth":"Alu9hVnh1dg6ePXdsd-8Uw"}}*/
+/*
+{"endpoint":"https://fcm.googleapis.com/fcm/send/czmAx9qMoQE:APA91bGfMbCuWKFWDzMQ8skn76jxJptSrmN3w7M8gF7wR5NGX2ZBzZVR_buyXnWGCKFGEKJ_4Vp-YkDg6TJWG2Ir8U0MeNls997-PPMEb8GnxpZcoXmTXgY91YYDO2zNteGpI3gs5iwO","expirationTime":null,"keys":{"p256dh":"BJ6CnGvYd0p4tOcNCR22ytEaWkLaqZXFmHo9bycAwVb_iCkKA5-dYUxDpM1-IUMhJrgdfExtVgz6zEK1BgvCqqg","auth":"Alu9hVnh1dg6ePXdsd-8Uw"}}*/
