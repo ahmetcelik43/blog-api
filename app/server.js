@@ -31,7 +31,7 @@ app.get("/fake-pass", async(request, response, next) => {
         });
     })
     //exports.app = functions.https.onRequest(app);
-app.listen(port,"blog-api43.herokuapp.com",() => {
+app.listen(port,() => {
     console.log("Sunucu Başarılı bir şekilde çalışıyor..." + " port:" + PORT);
 });
 // const mysql = require('mysql');
