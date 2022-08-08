@@ -10,13 +10,13 @@ const PORT = process.env.PORT || 80;
 //const functions = require("firebase-functions");
 
 
-app.use("/auth", require("../router/auth"));
-app.use("/admin", require("../middleware/verify"));
-app.use("/admin", require("../router/admin"));
-app.use("/cats", require("../middleware/verify"));
-app.use("/cats", require("../router/cats"));
-app.use("/tags", require("../middleware/verify"));
-app.use("/tags", require("../router/tag"));
+app.use("/auth", require("./router/auth"));
+app.use("/admin", require("./middleware/verify"));
+app.use("/admin", require("./router/admin"));
+app.use("/cats", require("./middleware/verify"));
+app.use("/cats", require("./router/cats"));
+app.use("/tags", require("./middleware/verify"));
+app.use("/tags", require("./router/tag"));
 
 app.get("/", async(request, response, next) => {
     response.send('OK')
