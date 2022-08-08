@@ -7,16 +7,20 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 const PORT = process.env.PORT || 80;
+const functions = require("firebase-functions");
 
 
-app.use("/auth", require("./router/auth"));
-app.use("/admin", require("./middleware/verify"));
-app.use("/admin", require("./router/admin"));
-app.use("/cats", require("./middleware/verify"));
-app.use("/cats", require("./router/cats"));
-app.use("/tags", require("./middleware/verify"));
-app.use("/tags", require("./router/tag"));
+app.use("/auth", require("../router/auth"));
+app.use("/admin", require("../middleware/verify"));
+app.use("/admin", require("../router/admin"));
+app.use("/cats", require("../middleware/verify"));
+app.use("/cats", require("../router/cats"));
+app.use("/tags", require("../middleware/verify"));
+app.use("/tags", require("../router/tag"));
 
+app.get("/",async(request, response, next) => {
+  response.send('OK')
+})
 app.get("/fake-pass",async(request, response, next) => {
   const {password} = request.body;
   console.log(request.body)
@@ -26,10 +30,10 @@ app.get("/fake-pass",async(request, response, next) => {
     hashedPass
   });
 })
-
-app.listen(PORT, () => {
-  console.log("Sunucu Başarılı bir şekilde çalışıyor..."+" port:"+PORT);
-});
+exports.app = functions.https.onRequest(app);
+// app.listen(PORT, () => {
+//   console.log("Sunucu Başarılı bir şekilde çalışıyor..."+" port:"+PORT);
+// });
 // const mysql = require('mysql');
 // const webPush = require("web-push");
 //const vapidKeys = webPush.generateVAPIDKeys();
