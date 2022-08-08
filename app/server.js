@@ -6,9 +6,9 @@ const bcrypt = require('bcrypt');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
-const PORT = 80;
+const PORT =3000;
 //const functions = require("firebase-functions");
-
+const config=require('./config')
 
 app.use("/auth", require("./router/auth"));
 app.use("/admin", require("./middleware/verify"));
@@ -31,7 +31,7 @@ app.get("/fake-pass", async(request, response, next) => {
         });
     })
     //exports.app = functions.https.onRequest(app);
-app.listen(PORT, "https://blog-api43.herokuapp.com",() => {
+app.listen(PORT, config.prod ? config.urlProd : config.urlLocale,() => {
     console.log("Sunucu Başarılı bir şekilde çalışıyor..." + " port:" + PORT);
 });
 // const mysql = require('mysql');
