@@ -18,10 +18,11 @@ router.get("get-token", (request, response, next) => {
 
 router.post("/login", (request, response, next) => {
     const dao = new db()
-    dao.get('SELECT email,name,id,password FROM users where email = ?', [request.body.email])
+    const {email,password}=request.body
+    dao.get('SELECT email,name,id,password FROM users where email = ?', [email])
         .then(async (user) => {
             try {
-                const match = await bcrypt.compare(request.body.password, user.password);
+                const match = await bcrypt.compare(password, user.password);
                 delete user["password"]
                 const token = jwt.sign((user), process.env.TOKEN_SECRET, {expiresIn: "2h"})
                 if (match) {
