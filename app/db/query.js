@@ -1,65 +1,81 @@
-
 const sqlite3 = require('sqlite3')
 const Promise = require('bluebird')
 
+
+class PrivateSingleton {
+    constructor() {
+        this.db = new sqlite3.Database(__dirname + "/db.db", (err) => {
+            if (err) {
+                console.log('Could not connect to database', err)
+            } else {
+                console.log('Connected to database')
+            }
+        })
+    }
+
+    //create/update/delete
+    run(sql, params = []) {
+        return new Promise((resolve, reject) => {
+            db.instance.db.run(sql, params, function (err) {
+                if (err) {
+                    console.log('Error running sql ' + sql)
+                    console.log(err)
+                    reject(err)
+                } else {
+                    // resolve({ id: this.lastID })
+                    resolve()
+                }
+            })
+        })
+    }
+
+    //get
+    get(sql, params = []) {
+        return new Promise((resolve, reject) => {
+            db.instance.db.get(sql, params, (err, result) => {
+                if (err) {
+                    console.log('Error running sql: ' + sql)
+                    console.log(err)
+                    reject(err)
+                } else {
+                    console.log(result)
+                    resolve(result)
+                }
+            })
+        })
+    }
+
+    all(sql, params = []) {
+        return new Promise((resolve, reject) => {
+            db.instance.db.all(sql, params, (err, result) => {
+                if (err) {
+                    console.log('Error running sql: ' + sql)
+                    console.log(err)
+                    reject(err)
+                } else {
+                    console.log(result)
+                    resolve(result)
+                }
+            })
+        })
+    }
+
+}
+
 class db {
 
-   constructor() {
-    this.db =  new sqlite3.Database(__dirname+ "/db.db", (err) => {
-      if (err) {
-        console.log('Could not connect to database', err)
-      } else {
-        console.log('Connected to database')
-      }
-    })
-  }
-
-  //create/update/delete
-  run(sql, params = []) {
-    return new Promise((resolve, reject) => {
-      this.db.run(sql, params, function (err) {
-        if (err) {
-          console.log('Error running sql ' + sql)
-          console.log(err)
-          reject(err)
-        } else {
-          // resolve({ id: this.lastID })
-          resolve()
+    static getInstance() {
+        if (!db.instance) {
+            db.instance = new PrivateSingleton();
         }
-      })
-    })
-  }
+        return db.instance;
+    }
 
-  //get
-  get(sql, params = []) {
-    return new Promise((resolve, reject) => {
-      this.db.get(sql, params, (err, result) => {
-        if (err) {
-          console.log('Error running sql: ' + sql)
-          console.log(err)
-          reject(err)
-        } else {
-          console.log(result)
-          resolve(result)
-        }
-      })
-    })
-  }
+    constructor() {
+        throw new Error('Use Singleton.getInstance()');
+    }
 
-  all(sql, params = []) {
-    return new Promise((resolve, reject) => {
-      this.db.all(sql, params, (err, result) => {
-        if (err) {
-          console.log('Error running sql: ' + sql)
-          console.log(err)
-          reject(err)
-        } else {
-          console.log(result)
-          resolve(result)
-        }
-      })
-    })
-  }
+
 
 }
 

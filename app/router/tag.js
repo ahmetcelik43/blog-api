@@ -4,7 +4,7 @@ const db = require("../db/query");
 const router = require("express").Router();
 
 router.post("/add", (request, response, next) => {
-    const dao = new db()
+    const dao = db.getInstance();
     const {nametr,create,nameen} = request.body;
     dao.run('insert into tags ("nametr","nameen","create") values(?,?,?)', [nametr,nameen,create])
         .then(async (user) => {
@@ -19,7 +19,7 @@ router.post("/add", (request, response, next) => {
 
 
 router.put("/update", (request, response, next) => {
-    const dao = new db()
+    const dao = db.getInstance();
     const {nametr,update,nameen,id} = request.body;
     dao.run('update cats set "nametr"=? , "nameen"=? , "update"=? where "id"=?', [nametr,nameen,update,id])
         .then(async (user) => {
@@ -33,14 +33,14 @@ router.put("/update", (request, response, next) => {
 })
 
 router.get("/get", (request, response, next) => {
-    const dao = new db()
+    const dao = db.getInstance();
     dao.all('SELECT * FROM tags', []).then((data)=>{
         response.json(data)
     })
 })
 
 router.delete("/delete", (request, response, next) => {
-    const dao = new db()
+    const dao = db.getInstance();
     const {id} = request.query;
     dao.run('delete from tags where id=:id', [id]).then((data)=>{
         dao.all('SELECT * FROM tags', []).then((data)=>{

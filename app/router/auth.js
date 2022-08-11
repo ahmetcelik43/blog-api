@@ -4,21 +4,10 @@ const bcrypt = require('bcrypt');
 const db = require('../db/query')
 const config=require('../config')
 const secret=config.secret
-router.get("get-token", (request, response, next) => {
-    const {password,email} = request.body;
-    const payLoad = {
-        password,
-        email
-    };
-    const token = jwt.sign(payLoad, secret, {expiresIn: "2h"});
-    response.json({
-        status: true,
-        token
-    });
-})
+
 
 router.post("/login", (request, response, next) => {
-    const dao = new db()
+    const dao = db.getInstance();
     const {email,password}=request.body
     dao.get('SELECT email,name,id,password FROM users where email = ?', [email])
         .then(async (user) => {

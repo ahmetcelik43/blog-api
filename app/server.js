@@ -3,12 +3,18 @@ const bodyParser = require("body-parser");
 const app = express();
 const cors = require("cors");
 const bcrypt = require('bcrypt');
+const fs = require('fs')
+const fileUpload = require('express-fileupload');
+app.use(fileUpload());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(cors());
 const port = process.env.PORT || 80
 //const functions = require("firebase-functions");
-const config=require('./config')
+const config = require('./config')
+const path = require('path')
+
+app.use(express.static('public'))
 
 app.use("/auth", require("./router/auth"));
 app.use("/admin", require("./middleware/verify"));
@@ -17,21 +23,47 @@ app.use("/cats", require("./middleware/verify"));
 app.use("/cats", require("./router/cats"));
 app.use("/tags", require("./middleware/verify"));
 app.use("/tags", require("./router/tag"));
+app.use("/posts", require("./middleware/verify"));
+app.use("/posts", require("./router/post"));
+app.use("/meta", require("./middleware/verify"));
+app.use("/meta", require("./router/meta"));
+app.use("/front-post", require("./router/front/front-post"));
 
-app.get("/", async(request, response, next) => {
+// app.get("/public/posts/:file", async (request, response, next) => {
+//     const filename=request.params.file
+//     var filePath = path.join(__dirname, '../public/posts/'+filename);
+//     var stat = fs.statSync(filePath);
+//
+//     response.writeHead(200, {
+//         // 'Content-Type': 'audio/mpeg',
+//         'Content-Length': stat.size
+//     });
+//
+//     var readStream = fs.createReadStream(filePath);
+//     // We replaced all the event handlers with a simple call to readStream.pipe()
+//     readStream.pipe(response);
+// });
+
+app.get("/", async (request, response, next) => {
     response.send('OK')
 })
-app.get("/fake-pass", async(request, response, next) => {
-        const { password } = request.body;
-        console.log(request.body)
-        const hashedPass = await bcrypt.hash(request.body.password, 10)
-        response.json({
-            status: true,
-            hashedPass
-        });
+// app.get("/fake-pass", async (request, response, next) => {
+//     const {password} = request.body;
+//     console.log(request.body)
+//     const hashedPass = await bcrypt.hash(request.body.password, 10)
+//     response.json({
+//         status: true,
+//         hashedPass
+//     });
+// })
+//exports.app = functions.https.onRequest(app);
+if (config.prod)
+    app.listen(port);
+else {
+    app.listen(8081, "localhost", function () {
+
     })
-    //exports.app = functions.https.onRequest(app);
-app.listen(port);
+}
 // const mysql = require('mysql');
 // const webPush = require("web-push");
 //const vapidKeys = webPush.generateVAPIDKeys();
