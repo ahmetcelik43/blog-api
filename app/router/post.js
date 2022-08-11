@@ -110,6 +110,12 @@ router.get("/getAll", (request, response, next) => {
         response.json(data)
     })
 })
-
+router.delete("/delete", (request, response, next) => {
+    const dao = db.getInstance();
+    const {id} = request.query;
+    dao.run('delete from posts where id=:id', [id]).then((data)=>{
+        response.json({status:1,"message":"success"})
+    })
+})
 
 module.exports = router;
