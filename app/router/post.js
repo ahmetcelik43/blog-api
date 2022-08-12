@@ -97,14 +97,22 @@ router.put("/update", async (request, response, next) => {
             response.status(400).send('Upload error');
         });
 
-    const dt = [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr,idtr,
-        nameen, caten, tagen, posten, update, slugen, uploadPath, alten,iden]
+    const dt = [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr,idtr],
+        dt2=[nameen, caten, tagen, posten, update, slugen, uploadPath, alten,iden]
 
-    dao.run('update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=? ; ' +
-        'update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=? ',
+    dao.run('update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=?',
         dt)
         .then(async () => {
-            response.json({message: "success", status: 1})
+            dao.run('update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=? ; ' +
+                'update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=? ',
+                dt2)
+                .then(async () => {
+                    response.json({message: "success", status: 1})
+                })
+                .catch((err) => {
+                    response.json({message: err, status: 0})
+                });
+
         })
         .catch((err) => {
             response.json({message: err, status: 0})
