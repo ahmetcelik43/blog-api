@@ -100,8 +100,9 @@ router.put("/update", async (request, response, next) => {
     // const dt = [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr,idtr],
     //     dt2=[nameen, caten, tagen, posten, update, slugen, uploadPath, alten,iden]
 
-    await dao.run('update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=?',
-        [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr,idtr])
+    await dao.run(`update posts set name="${nametr}" , cat="${cattr}",tags="${tagtr}",post="${posttr}",update="${update}",
+                 slug="${slugtr}",image_url="${uploadPath}",alt="${alttr}" where id="${idtr}"`,
+        [])
         .then( async () => {
 
 
