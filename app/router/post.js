@@ -103,24 +103,23 @@ router.put("/update", async (request, response, next) => {
     await dao.run(`update posts set "name"=? , "cat"=?,"tags"=?,"post"=?,"update"=?,"slug"=?,"image_url"=?,"alt"=? where "id"=?`,
         [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr,idtr])
         .then( async () => {
-
-
+            await dao.run('update posts set "name"=? , "cat"=?,"tags"=?,"post"=?,"update"=?,"slug"=?,"image_url"=?,"alt"=? where "id"=?',
+                [nameen, caten, tagen, posten, update, slugen, uploadPath, alten,iden])
+                .then( () => {
+                    console.log("update")
+                    response.json({message: "success", status: 1})
+                })
+                .catch((err) => {
+                    console.log("err2")
+                    response.status(500).json({message: err, status: 0})
+                });
         })
         .catch((err) => {
             console.log("err1")
             response.status(500).json({message: err, status: 0})
         });
 
-    await dao.run('update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=?',
-        [nameen, caten, tagen, posten, update, slugen, uploadPath, alten,iden])
-        .then( () => {
-            console.log("update")
-            response.json({message: "success", status: 1})
-        })
-        .catch((err) => {
-            console.log("err2")
-            response.status(500).json({message: err, status: 0})
-        });
+
 })
 
 router.get("/getByName", (request, response, next) => {
