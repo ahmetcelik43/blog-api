@@ -62,7 +62,7 @@ router.get("/getBySlug", (request, response, next) => {
             split).then((d) => {
             obj["tagler"] = d
         })
-        return obj
+        response.json(obj)
 
     })
 })
