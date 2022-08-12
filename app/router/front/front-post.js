@@ -50,24 +50,20 @@ router.get("/getBySlug", (request, response, next) => {
         ' where posts.slug=?'
 
     dao.get(query, [slug]).then(async(data) => {
-        let g = data.map(async(i) => {
-            const split = i.tags.split(',')
-            let qr = []
-            split.forEach((i, index) => {
-                qr.push(" id=?")
-            })
-            let obj = i
-            const q = "select id,nametr,nameen from tags where " + qr.join(' or ')
-            await dao.all(q,
-                split).then((d) => {
-                obj["tagler"] = d
-            })
-            return obj
-        })
 
-        Promise.all(g).then((d) => {
-            response.json(d)
+        const split = data.tags.split(',')
+        let qr = []
+        split.forEach((i, index) => {
+            qr.push(" id=?")
         })
+        let obj = data
+        const q = "select id,nametr,nameen from tags where " + qr.join(' or ')
+        await dao.all(q,
+            split).then((d) => {
+            obj["tagler"] = d
+        })
+        return obj
+
     })
 })
 
