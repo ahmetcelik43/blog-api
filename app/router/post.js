@@ -110,11 +110,13 @@ router.put("/update", async (request, response, next) => {
                     response.json({message: "success", status: 1})
                 })
                 .catch((err) => {
+                    console.log("err2")
                     response.json({message: err, status: 0})
                 });
 
         })
         .catch((err) => {
+            console.log("err1")
             response.json({message: err, status: 0})
         });
 })
