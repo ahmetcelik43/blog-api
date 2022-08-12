@@ -97,11 +97,11 @@ router.put("/update", async (request, response, next) => {
             response.status(400).send('Upload error');
         });
 
-    const dt = [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr,idtr],
-        dt2=[nameen, caten, tagen, posten, update, slugen, uploadPath, alten,iden]
+    // const dt = [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr,idtr],
+    //     dt2=[nameen, caten, tagen, posten, update, slugen, uploadPath, alten,iden]
 
     await dao.run('update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=?',
-        dt)
+        [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr,idtr])
         .then( async () => {
 
 
@@ -112,7 +112,7 @@ router.put("/update", async (request, response, next) => {
         });
 
     await dao.run('update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=?',
-        dt2)
+        [nameen, caten, tagen, posten, update, slugen, uploadPath, alten,iden])
         .then( () => {
             console.log("update")
             response.json({message: "success", status: 1})
