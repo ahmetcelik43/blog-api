@@ -5,6 +5,7 @@ const router = require("express").Router();
 const sharp = require('sharp');
 const path = require('path')
 const config = require('../config')
+const {resolve} = require("path");
 
 router.post("/add", async (request, response, next) => {
 
@@ -14,7 +15,7 @@ router.post("/add", async (request, response, next) => {
         return;
     }
     const dao = db.getInstance();
-    let uploadPath;
+    let uploadPath = "";
     const {
         nametr,
         nameen,
@@ -29,25 +30,26 @@ router.post("/add", async (request, response, next) => {
         slugtr,
         slugen,
         langtr,
-        langen
+        langen,
+        alttr,
+        alten
     } = request.body
 
     let sampleFile = request.files.file.data;
-    let filename = nametr + ".jpg"
+    let filename = slugtr + ".jpg"
     await sharp(sampleFile)
         .resize(400, 370).jpeg({quality: 80})
         .toFile(path.resolve('public/posts/' + filename)).then(() => {
-            uploadPath = config.prod ? config.urlProd : config.urlLocal
             uploadPath += ["posts", filename].join('/')
         }).catch((err) => {
             response.status(400).send('Upload error');
         });
 
-    const dt = [nametr, cattr, tagtr, posttr, create, slugtr, langtr, group_lang, uploadPath,
-        nameen, caten, tagen, posten, create, slugen, langen, group_lang, uploadPath]
+    const dt = [nametr, cattr, tagtr, posttr, create, slugtr, langtr, group_lang, uploadPath, alttr,
+        nameen, caten, tagen, posten, create, slugen, langen, group_lang, uploadPath, alten]
 
-    dao.run('insert into posts ("name","cat","tags","post","create","slug","lang","group_lang","image_url") values(?,?,?,?,?,?,?,?,?)' +
-        ' ,(?,?,?,?,?,?,?,?,?)',
+    dao.run('insert into posts ("name","cat","tags","post","create","slug","lang","group_lang","image_url","alt") values(?,?,?,?,?,?,?,?,?,?)' +
+        ' ,(?,?,?,?,?,?,?,?,?,?)',
         dt)
         .then(async () => {
             response.json({message: "success", status: 1})
@@ -59,17 +61,51 @@ router.post("/add", async (request, response, next) => {
 })
 
 
-router.put("/update", (request, response, next) => {
+router.put("/update", async (request, response, next) => {
+
+    if (!request.files || Object.keys(request.files).length === 0) {
+        response.status(400).send('No files were uploaded.');
+        return;
+    }
     const dao = db.getInstance();
-    const {nametr, nameen, update, id} = request.body;
-    dao.run('update cats set "nametr"=? ,"nameen"=? , "update"=? where "id"=?', [nametr, nameen, update, id])
-        .then(async (user) => {
-            dao.all('SELECT * FROM cats', []).then((data) => {
-                response.json(data)
-            })
+    let uploadPath = "";
+    const {
+        nametr,
+        nameen,
+        tagtr,
+        tagen,
+        cattr,
+        caten,
+        posttr,
+        posten,
+        update,
+        slugtr,
+        slugen,
+        alttr,
+        alten
+    } = request.body
+
+    let sampleFile = request.files.file.data;
+    let filename = slugtr + ".jpg"
+    await sharp(sampleFile)
+        .resize(400, 370).jpeg({quality: 80})
+        .toFile(path.resolve('public/posts/' + filename)).then(() => {
+            uploadPath += ["posts", filename].join('/')
+        }).catch((err) => {
+            response.status(400).send('Upload error');
+        });
+
+    const dt = [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr,
+        nameen, caten, tagen, posten, update, slugen, uploadPath, alten]
+
+    dao.run('update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=? ; ' +
+        'update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=? ',
+        dt)
+        .then(async () => {
+            response.json({message: "success", status: 1})
         })
         .catch((err) => {
-            console.log(JSON.stringify(err))
+            response.json({message: err, status: 0})
         });
 })
 
@@ -80,41 +116,80 @@ router.get("/getByName", (request, response, next) => {
     })
 })
 
-router.delete("/getById", (request, response, next) => {
+
+router.get("/getByNames", (request, response, next) => {
     const dao = db.getInstance();
-    const query = 'SELECT  posts.* , tags.nametr as tagtr,tags.nameen as tagen\n' +
-        ', cats.nametr as cattr,cats.nameen as caten\n' +
-        'FROM posts \n' +
-        'left join tags on posts.tags = tags.id \n' +
-        'inner join cats on cats.id=posts.cat \n' +
-        'where tags.id in (posts.tags)\n' +
-        '\n and posts.group_lang=?'
-    const {id} =request.query
-    dao.all(query,
-        [id]).then((data) => {
+    const {tr,en}=request.query
+    dao.all('SELECT name FROM posts where name!=? and name!=?', [tr,en]).then((data) => {
         response.json(data)
+    })
+})
+
+
+router.get("/getById", (request, response, next) => {
+    const dao = db.getInstance();
+    const query = 'SELECT  posts.* \n' +
+        ', cats.id as catid \n' +
+        'FROM posts \n' +
+        'inner join cats on cats.id=posts.cat \n'+
+        ' where posts.group_lang=?'
+    const {group_lang}=request.query
+    dao.all(query,
+        [group_lang]).then(async (data) => {
+        let g = data.map(async (i) => {
+            const split = i.tags.split(',')
+            let qr = [], temp
+            split.forEach((i, index) => {
+                qr.push(" id=?")
+            })
+            let obj = i
+            const q = "select id,nametr,nameen from tags where " + qr.join(' or ')
+            await dao.all(q,
+                split).then((d) => {
+                obj["tagler"] = d
+            })
+            return obj
+        })
+
+        Promise.all(g).then((d) => {
+            response.json(d)
+        })
     })
 })
 
 router.get("/getAll", (request, response, next) => {
     const dao = db.getInstance();
-    const query = 'SELECT  posts.* , tags.nametr as tagtr,tags.nameen as tagen\n' +
+    const query = 'SELECT  posts.* \n' +
         ', cats.nametr as cattr,cats.nameen as caten\n' +
         'FROM posts \n' +
-        'left join tags on posts.tags = tags.id \n' +
-        'inner join cats on cats.id=posts.cat \n' +
-        'where tags.id in (posts.tags)\n' +
-        '\n'
+        'inner join cats on cats.id=posts.cat \n'
     dao.all(query,
-        []).then((data) => {
-        response.json(data)
+        []).then(async (data) => {
+        let g = data.map(async (i) => {
+            const split = i.tags.split(',')
+            let qr = [], temp
+            split.forEach((i, index) => {
+                qr.push(" id=?")
+            })
+            let obj = i
+            const q = "select id,nametr,nameen from tags where " + qr.join(' or ')
+            await dao.all(q,
+                split).then((d) => {
+                obj["aa"] = d
+            })
+            return obj
+        })
+
+        Promise.all(g).then((d) => {
+            response.json(d)
+        })
     })
 })
 router.delete("/delete", (request, response, next) => {
     const dao = db.getInstance();
     const {id} = request.query;
-    dao.run('delete from posts where id=:id', [id]).then((data)=>{
-        response.json({status:1,"message":"success"})
+    dao.run('delete from posts where id=:id', [id]).then((data) => {
+        response.json({status: 1, "message": "success"})
     })
 })
 

@@ -15,6 +15,7 @@ router.get("/getAll", (request, response, next) => {
         '\n'
     dao.all(query,
         []).then((data) => {
+            console.info(data)
         response.json(data)
     })
 })
