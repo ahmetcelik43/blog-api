@@ -10,11 +10,11 @@ router.get("/getAll", (request, response, next) => {
         ', cats.nametr as cattr,cats.nameen as caten\n' +
         'FROM posts \n' +
         'inner join cats on cats.id=posts.cat \n'
-    dao.all(query,
-        []).then(async (data) => {
-        let g = data.map(async (i) => {
+    dao.all(query, []).then(async(data) => {
+        let g = data.map(async(i) => {
             const split = i.tags.split(',')
-            let qr = [], temp
+            let qr = [],
+                temp
             split.forEach((i, index) => {
                 qr.push(" id=?")
             })
@@ -33,5 +33,11 @@ router.get("/getAll", (request, response, next) => {
     })
 })
 
+router.get("/get", (request, response, next) => {
+    const dao = db.getInstance();
+    dao.all('SELECT * FROM cats', []).then((data) => {
+        response.json(data)
+    })
+})
 
 module.exports = router;
