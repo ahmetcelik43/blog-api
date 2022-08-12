@@ -103,8 +103,7 @@ router.put("/update", async (request, response, next) => {
     dao.run('update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=?',
         dt)
         .then(async () => {
-            dao.run('update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=? ; ' +
-                'update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=? ',
+            dao.run('update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=?',
                 dt2)
                 .then(async () => {
                     response.json({message: "success", status: 1})
