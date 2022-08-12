@@ -100,7 +100,7 @@ router.put("/update", async (request, response, next) => {
     const dt = [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr,idtr],
         dt2=[nameen, caten, tagen, posten, update, slugen, uploadPath, alten,iden]
 
-    await dao.run('update "posts" set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=?',
+    await dao.run('update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=?',
         dt)
         .then( async () => {
 
@@ -108,10 +108,10 @@ router.put("/update", async (request, response, next) => {
         })
         .catch((err) => {
             console.log("err1")
-            response.json({message: err, status: 0})
+            response.status(500).json({message: err, status: 0})
         });
 
-    await dao.run('update "posts" set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=?',
+    await dao.run('update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=?',
         dt2)
         .then( () => {
             console.log("update")
@@ -119,7 +119,7 @@ router.put("/update", async (request, response, next) => {
         })
         .catch((err) => {
             console.log("err2")
-            response.json({message: err, status: 0})
+            response.status(500).json({message: err, status: 0})
         });
 })
 
