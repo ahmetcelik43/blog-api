@@ -82,7 +82,9 @@ router.put("/update", async (request, response, next) => {
         slugtr,
         slugen,
         alttr,
-        alten
+        alten,
+        idtr,
+        iden
     } = request.body
 
     let sampleFile = request.files.file.data;
@@ -95,8 +97,8 @@ router.put("/update", async (request, response, next) => {
             response.status(400).send('Upload error');
         });
 
-    const dt = [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr,
-        nameen, caten, tagen, posten, update, slugen, uploadPath, alten]
+    const dt = [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr,idtr,
+        nameen, caten, tagen, posten, update, slugen, uploadPath, alten,iden]
 
     dao.run('update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=? ; ' +
         'update posts set name=? , cat=?,tags=?,post=?,update=?,slug=?,image_url=?,alt=? where id=? ',
