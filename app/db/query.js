@@ -1,22 +1,29 @@
 const sqlite3 = require('sqlite3')
 const Promise = require('bluebird')
 
-
 class PrivateSingleton {
     constructor() {
         this.db = new sqlite3.Database(__dirname + "/db.db", (err) => {
             if (err) {
                 console.log('Could not connect to database', err)
             } else {
-                console.log('Connected to database')
+                const sql = 'pragma journal_mode = WAL;pragma synchronous = normal;pragma temp_store = memory;' +
+                    ' pragma mmap_size = 30000000000;'
+                db.instance.db.run(sql, [], function(err) {
+                    if (err) {
+                        console.log('Error running sql ' + sql)
+                        console.log(err)
+                    } else {}
+                })
             }
         })
+
     }
 
     //create/update/delete
     run(sql, params = []) {
         return new Promise((resolve, reject) => {
-            db.instance.db.run(sql, params, function (err) {
+            db.instance.db.run(sql, params, function(err) {
                 if (err) {
                     console.log('Error running sql ' + sql)
                     console.log(err)
@@ -38,7 +45,6 @@ class PrivateSingleton {
                     console.log(err)
                     reject(err)
                 } else {
-                    console.log(result)
                     resolve(result)
                 }
             })
@@ -53,7 +59,6 @@ class PrivateSingleton {
                     console.log(err)
                     reject(err)
                 } else {
-                    console.log(result)
                     resolve(result)
                 }
             })
@@ -74,9 +79,8 @@ class db {
     constructor() {
         throw new Error('Use Singleton.getInstance()');
     }
-
-
-
 }
+
+
 
 module.exports = db

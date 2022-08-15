@@ -2,19 +2,17 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
 const cors = require("cors");
-const bcrypt = require('bcrypt');
-const fs = require('fs')
 const fileUpload = require('express-fileupload');
 app.use(fileUpload());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 const port = process.env.PORT || 80
-//const functions = require("firebase-functions");
+    //const functions = require("firebase-functions");
 const config = require('./config')
-const path = require('path')
 
 app.use(express.static('public'))
+
 
 app.use("/auth", require("./router/auth"));
 app.use("/admin", require("./middleware/verify"));
@@ -44,23 +42,23 @@ app.use("/front-post", require("./router/front/front-post"));
 //     readStream.pipe(response);
 // });
 
-app.get("/", async (request, response, next) => {
-    response.send('OK')
-})
-// app.get("/fake-pass", async (request, response, next) => {
-//     const {password} = request.body;
-//     console.log(request.body)
-//     const hashedPass = await bcrypt.hash(request.body.password, 10)
-//     response.json({
-//         status: true,
-//         hashedPass
-//     });
-// })
-//exports.app = functions.https.onRequest(app);
+app.get("/", async(request, response, next) => {
+        response.send('OK')
+    })
+    // app.get("/fake-pass", async (request, response, next) => {
+    //     const {password} = request.body;
+    //     console.log(request.body)
+    //     const hashedPass = await bcrypt.hash(request.body.password, 10)
+    //     response.json({
+    //         status: true,
+    //         hashedPass
+    //     });
+    // })
+    //exports.app = functions.https.onRequest(app);
 if (config.prod)
     app.listen(port);
 else {
-    app.listen(8081, "localhost", function () {
+    app.listen(8081, "localhost", function() {
 
     })
 }

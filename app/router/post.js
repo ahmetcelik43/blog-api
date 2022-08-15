@@ -105,7 +105,6 @@ router.put("/update", async(request, response, next) => {
         .then(async() => {
             await dao.run('update posts set "name"=? , "cat"=?,"tags"=?,"post"=?,"update"=?,"slug"=?,"image_url"=?,"alt"=? where "id"=?', [nameen, caten, tagen, posten, update, slugen, uploadPath, alten, iden])
                 .then(() => {
-                    console.log("update")
                     response.json({ message: "success", status: 1 })
                 })
                 .catch((err) => {
