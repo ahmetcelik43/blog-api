@@ -10,18 +10,19 @@ const path = require("path");
 
 router.get("/getAll", async(request, response, next) => {
 
-    const client = redis.getInstance()
+    /*   const client = redis.getInstance()
     const cats = await client.get('posts')
     if (cats) {
         return response.json(JSON.parse(cats))
     }
-
+*/
+    const { lang } = request.query
     const dao = db.getInstance();
     const query = 'SELECT  posts.* \n' +
         ', cats.nametr as cattr,cats.nameen as caten\n' +
         'FROM posts \n' +
-        'inner join cats on cats.id=posts.cat \n'
-    dao.all(query, []).then(async(data) => {
+        'inner join cats on cats.id=posts.cat where posts.lang=? \n'
+    dao.all(query, [lang]).then(async(data) => {
         response.json(data)
             /* let g = data.map(async(i) => {
                  const split = i.tags.split(',')
@@ -85,17 +86,19 @@ router.get("/getSlider", (request, response, next) => {
 
 router.get("/getCats", (request, response, next) => {
     const dao = db.getInstance()
+
     dao.all('SELECT cats.*,count(posts.id) FROM cats inner join posts on cats.id=posts.cat group by posts.cat', []).then(async(data) => {
         response.json(data)
     })
 })
 
-router.get("/getCatWithPostNumber", async(request, response, next) => {
-
+router.get("/getCatWithPostNumber", (request, response, next) => {
+    const { lang } = request.query
     const dao = db.getInstance()
-    dao.all('SELECT cats.*,count(posts.id) as postNumber FROM cats left join posts on cats.id=posts.cat GROUP BY cats.id', []).then(async(data) => {
-        response.json(data)
-    })
+    dao.all('SELECT cats.*,count(posts.id) as postNumber FROM cats left join posts on cats.id=posts.cat where posts.lang=? GROUP BY cats.id', [lang])
+        .then((data) => {
+            response.json(data)
+        })
 })
 
 router.get("/getSearch", async(request, response, next) => {

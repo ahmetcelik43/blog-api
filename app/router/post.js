@@ -16,6 +16,7 @@ router.post("/add", async(request, response, next) => {
     }
     const dao = db.getInstance();
     let uploadPath = "";
+    let uploadPathMin = ""
     const {
         nametr,
         nameen,
@@ -44,12 +45,21 @@ router.post("/add", async(request, response, next) => {
         }).catch((err) => {
             response.status(400).send('Upload error');
         });
+    let filenameMin = slugtr + "_min.jpg"
 
-    const dt = [nametr, cattr, tagtr, posttr, create, slugtr, langtr, group_lang, uploadPath, alttr,
-        nameen, caten, tagen, posten, create, slugen, langen, group_lang, uploadPath, alten
+    await sharp(sampleFile)
+        .resize(130, 130).jpeg({ quality: 90 })
+        .toFile(path.resolve('public/posts/' + filenameMin)).then(() => {
+            uploadPathMin += ["posts", filenameMin].join('/')
+        }).catch((err) => {
+            response.status(400).send('Upload error');
+        });
+
+    const dt = [nametr, cattr, tagtr, posttr, create, slugtr, langtr, group_lang, uploadPath, alttr, uploadPathMin,
+        nameen, caten, tagen, posten, create, slugen, langen, group_lang, uploadPath, alten, uploadPathMin
     ]
 
-    dao.run('insert into posts ("name","cat","tags","post","create","slug","lang","group_lang","image_url","alt") values(?,?,?,?,?,?,?,?,?,?)' +
+    dao.run('insert into posts ("name","cat","tags","post","create","slug","lang","group_lang","image_url","alt","min_img") values(?,?,?,?,?,?,?,?,?,?,?)' +
             ' ,(?,?,?,?,?,?,?,?,?,?)',
             dt)
         .then(async() => {
@@ -97,9 +107,20 @@ router.put("/update", async(request, response, next) => {
             }).catch((err) => {
                 response.status(400).send('Upload error');
             });
-        d1 = [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr, idtr]
-        d2 = [nameen, caten, tagen, posten, update, slugen, uploadPath, alten, iden]
-        q1 = `update posts set "name"=? , "cat"=?,"tags"=?,"post"=?,"update"=?,"slug"=?,"image_url"=?,"alt"=? where "id"=?`
+
+        let filenameMin = slugtr + "_min.jpg"
+
+        await sharp(sampleFile)
+            .resize(130, 130).jpeg({ quality: 90 })
+            .toFile(path.resolve('public/posts/' + filenameMin)).then(() => {
+                uploadPathMin += ["posts", filenameMin].join('/')
+            }).catch((err) => {
+                response.status(400).send('Upload error');
+            });
+        d1 = [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr, uploadPathMin, idtr]
+        d2 = [nameen, caten, tagen, posten, update, slugen, uploadPath, alten, uploadPathMin, iden]
+        q1 = `update posts set "name"=? , "cat"=?,"tags"=?,"post"=?,"update"=?,"slug"=?,"image_url"=?,"min_img=?","alt"=? where "id"=?`
+
     }
 
     const dao = db.getInstance();
