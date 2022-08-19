@@ -38,7 +38,7 @@ router.post("/add", async(request, response, next) => {
     let sampleFile = request.files.file.data;
     let filename = slugtr + ".jpg"
     await sharp(sampleFile)
-        .resize(400, 370).jpeg({ quality: 80 })
+        .resize(400, 370).jpeg({ quality: 90 })
         .toFile(path.resolve('public/posts/' + filename)).then(() => {
             uploadPath += ["posts", filename].join('/')
         }).catch((err) => {
@@ -64,11 +64,6 @@ router.post("/add", async(request, response, next) => {
 
 router.put("/update", async(request, response, next) => {
 
-    if (!request.files || Object.keys(request.files).length === 0) {
-        response.status(400).send('No files were uploaded.');
-        return;
-    }
-    const dao = db.getInstance();
     let uploadPath = "";
     const {
         nametr,
@@ -88,22 +83,33 @@ router.put("/update", async(request, response, next) => {
         iden
     } = request.body
 
-    let sampleFile = request.files.file.data;
-    let filename = slugtr + ".jpg"
-    await sharp(sampleFile)
-        .resize(400, 370).jpeg({ quality: 80 })
-        .toFile(path.resolve('public/posts/' + filename)).then(() => {
-            uploadPath += ["posts", filename].join('/')
-        }).catch((err) => {
-            response.status(400).send('Upload error');
-        });
+    let d1 = [nametr, cattr, tagtr, posttr, update, slugtr, alttr, idtr]
+    let q1 = `update posts set "name"=? , "cat"=?,"tags"=?,"post"=?,"update"=?,"slug"=?,"alt"=? where "id"=?`
+    let d2 = [nameen, caten, tagen, posten, update, slugen, alten, iden]
+
+    if (Object.keys(request.files).length > -1) {
+        let sampleFile = request.files.file.data;
+        let filename = slugtr + ".jpg"
+        await sharp(sampleFile)
+            .resize(400, 370).jpeg({ quality: 90 })
+            .toFile(path.resolve('public/posts/' + filename)).then(() => {
+                uploadPath += ["posts", filename].join('/')
+            }).catch((err) => {
+                response.status(400).send('Upload error');
+            });
+        d1 = [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr, idtr]
+        d2 = [nameen, caten, tagen, posten, update, slugen, uploadPath, alten, iden]
+        q1 = `update posts set "name"=? , "cat"=?,"tags"=?,"post"=?,"update"=?,"slug"=?,"image_url"=?,"alt"=? where "id"=?`
+    }
+
+    const dao = db.getInstance();
 
     // const dt = [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr,idtr],
     //     dt2=[nameen, caten, tagen, posten, update, slugen, uploadPath, alten,iden]
 
-    await dao.run(`update posts set "name"=? , "cat"=?,"tags"=?,"post"=?,"update"=?,"slug"=?,"image_url"=?,"alt"=? where "id"=?`, [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr, idtr])
+    await dao.run(q1, d1)
         .then(async() => {
-            await dao.run('update posts set "name"=? , "cat"=?,"tags"=?,"post"=?,"update"=?,"slug"=?,"image_url"=?,"alt"=? where "id"=?', [nameen, caten, tagen, posten, update, slugen, uploadPath, alten, iden])
+            await dao.run(q1, d2)
                 .then(() => {
                     response.json({ message: "success", status: 1 })
                 })
