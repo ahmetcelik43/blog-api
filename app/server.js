@@ -26,7 +26,8 @@ app.use("/posts", require("./router/post"));
 app.use("/meta", require("./middleware/verify"));
 app.use("/meta", require("./router/meta"));
 app.use("/front-post", require("./router/front/front-post"));
-
+app.use("/slider", require("./middleware/verify"));
+app.use("/slider", require("./router/slider"));
 // app.get("/public/posts/:file", async (request, response, next) => {
 //     const filename=request.params.file
 //     var filePath = path.join(__dirname, '../public/posts/'+filename);

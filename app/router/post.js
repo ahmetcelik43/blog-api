@@ -5,7 +5,7 @@ const router = require("express").Router();
 const sharp = require('sharp');
 const path = require('path')
 const config = require('../config')
-const { resolve } = require("path");
+
 
 router.post("/add", async(request, response, next) => {
 
