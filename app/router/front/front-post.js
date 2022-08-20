@@ -6,6 +6,7 @@ const router = require("express").Router();
 const config = require('../../config')
 const sharp = require('sharp');
 const path = require("path");
+const axios = require('axios');
 
 
 router.get("/getAll", async(request, response, next) => {
@@ -130,9 +131,9 @@ router.get("/getTags", async(request, response, next) => {
 })
 
 router.get("/getRelated", (request, response, next) => {
-    const { cat } = request.query
+    const { cat, lang, id } = request.query
     const dao = db.getInstance()
-    dao.all('SELECT posts.* from posts inner join cats on cats.id=posts.cat where cats.id=?', [cat]).then((data) => {
+    dao.all('SELECT posts.* from posts inner join cats on cats.id=posts.cat where cats.id=? and posts.lang=? and posts.id<>?', [cat, lang, id]).then((data) => {
         response.json(data)
     })
 })
@@ -143,32 +144,108 @@ router.get("/getBySlug", async(request, response, next) => {
     const dao = db.getInstance();
     const { slug, locale } = request.query
     dao.get("select id from posts where group_lang = (select group_lang from posts where slug=?) and lang=?", [slug, locale]).then(async(d) => {
+
         const query = 'SELECT  posts.* \n' +
             ', cats.nametr as cattr,cats.nameen as caten,cats.id as catid \n' +
             'FROM posts \n' +
             'inner join cats on cats.id=posts.cat \n' +
             ' where posts.id=?'
 
-        dao.get(query, [d.id]).then(async(data) => {
+        if (d) {
+            dao.get(query, [d.id]).then(async(data) => {
 
-            const split = data.tags.split(',')
-            let qr = []
-            split.forEach((i, index) => {
-                qr.push(" id=?")
-            })
-            let obj = data
-            const q = "select id,nametr,nameen from tags where " + qr.join(' or ')
-            await dao.all(q,
-                    split).then((d) => {
-                    obj["tagler"] = d
+                const split = data.tags.split(',')
+                let qr = []
+                split.forEach((i, index) => {
+                    qr.push(" id=?")
                 })
-                //await client.set('postSlug', JSON.stringify(obj))
-            response.json(obj)
+                let obj = data
+                const q = "select id,nametr,nameen from tags where " + qr.join(' or ')
+                await dao.all(q,
+                        split).then((d) => {
+                        obj["tagler"] = d
+                    })
+                    //await client.set('postSlug', JSON.stringify(obj))
+                response.json(obj)
 
-        })
+            })
+        } else {
+            response.json({})
+        }
+
     })
-
 
 })
 
+
+router.get("/getCatWithPosts", async(request, response, next) => {
+
+    const dao = db.getInstance();
+    const { cat, lang } = request.query
+    dao.get("select id from cats where nametr=? or nameen=?", [cat, cat]).then(async(d) => {
+
+        const query = 'SELECT  posts.* \n' +
+            ', cats.nametr as cattr,cats.nameen as caten,cats.id as catid \n' +
+            'FROM posts \n' +
+            'inner join cats on cats.id=posts.cat \n' +
+            ' where posts.cat=? and posts.lang=?'
+
+        if (d) {
+            dao.all(query, [d.id, lang]).then((data) => {
+                response.json(data)
+            })
+        } else {
+            response.json([])
+        }
+
+    })
+
+})
+
+router.get("/recaptcha", (request, response, next) => {
+    const { token } = request.query
+
+    if (!token) {
+        response.end(
+            JSON.stringify({
+                success: false,
+                message: 'Invalid token'
+            })
+        );
+        return;
+    }
+
+    axios
+        .get(`https://www.google.com/recaptcha/api/siteverify?secret=${"6LcrbZIhAAAAAJ3X0LU-ujFLRwRZreR5OqA2uOM3"}&response=${token}`)
+        .then(res => {
+            console.log(res.data)
+            const dt = res.data
+            if (dt.success && dt.score > 0.5) {
+                response.end(
+                    JSON.stringify({
+                        success: true,
+                        message: 'Token verifyed'
+                    })
+                );
+            } else {
+                response.end(
+                    JSON.stringify({
+                        success: false,
+                        message: 'Invalid token'
+                    })
+                );
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        });
+})
+router.get("/getByPost", (request, response, next) => {
+    const { postId } = request.query;
+    const dao = db.getInstance();
+    dao.all('SELECT comments.* FROM comments inner join posts on posts.id=comments.post_id where comments.status=1 and posts.id=?', [postId]).then((data) => {
+        console.log(data)
+        response.json(data)
+    })
+})
 module.exports = router;

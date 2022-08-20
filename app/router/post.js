@@ -39,7 +39,7 @@ router.post("/add", async(request, response, next) => {
     let sampleFile = request.files.file.data;
     let filename = slugtr + ".jpg"
     await sharp(sampleFile)
-        .resize(400, 370).jpeg({ quality: 90 })
+        .resize(600, 250).jpeg({ quality: 90 })
         .toFile(path.resolve('public/posts/' + filename)).then(() => {
             uploadPath += ["posts", filename].join('/')
         }).catch((err) => {
@@ -73,7 +73,7 @@ router.post("/add", async(request, response, next) => {
 
 
 router.put("/update", async(request, response, next) => {
-
+    let uploadPathMin = ""
     let uploadPath = "";
     const {
         nametr,
@@ -97,11 +97,11 @@ router.put("/update", async(request, response, next) => {
     let q1 = `update posts set "name"=? , "cat"=?,"tags"=?,"post"=?,"update"=?,"slug"=?,"alt"=? where "id"=?`
     let d2 = [nameen, caten, tagen, posten, update, slugen, alten, iden]
 
-    if (Object.keys(request.files).length > -1) {
+    if (request.files) {
         let sampleFile = request.files.file.data;
         let filename = slugtr + ".jpg"
         await sharp(sampleFile)
-            .resize(400, 370).jpeg({ quality: 90 })
+            .resize(600, 250).jpeg({ quality: 90 })
             .toFile(path.resolve('public/posts/' + filename)).then(() => {
                 uploadPath += ["posts", filename].join('/')
             }).catch((err) => {
@@ -117,9 +117,9 @@ router.put("/update", async(request, response, next) => {
             }).catch((err) => {
                 response.status(400).send('Upload error');
             });
-        d1 = [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, alttr, uploadPathMin, idtr]
-        d2 = [nameen, caten, tagen, posten, update, slugen, uploadPath, alten, uploadPathMin, iden]
-        q1 = `update posts set "name"=? , "cat"=?,"tags"=?,"post"=?,"update"=?,"slug"=?,"image_url"=?,"min_img=?","alt"=? where "id"=?`
+        d1 = [nametr, cattr, tagtr, posttr, update, slugtr, uploadPath, uploadPathMin, alttr, idtr]
+        d2 = [nameen, caten, tagen, posten, update, slugen, uploadPath, uploadPathMin, alten, iden]
+        q1 = `update posts set "name"=? , "cat"=?,"tags"=?,"post"=?,"update"=?,"slug"=?,"image_url"=?,"min_img"=?,"alt"=? where "id"=?`
 
     }
 
@@ -225,8 +225,8 @@ router.get("/getAll", (request, response, next) => {
 })
 router.delete("/delete", (request, response, next) => {
     const dao = db.getInstance();
-    const { id } = request.query;
-    dao.run('delete from posts where id=:id', [id]).then((data) => {
+    const { grp } = request.query;
+    dao.run('delete from posts where grp=?', [grp]).then((data) => {
         response.json({ status: 1, "message": "success" })
     })
 })
