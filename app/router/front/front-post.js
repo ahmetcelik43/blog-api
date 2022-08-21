@@ -216,7 +216,7 @@ router.get("/recaptcha", (request, response, next) => {
     }
 
     axios
-        .get(`https://www.google.com/recaptcha/api/siteverify?secret=${"6LcrbZIhAAAAAJ3X0LU-ujFLRwRZreR5OqA2uOM3"}&response=${token}`)
+        .get(`https://www.google.com/recaptcha/api/siteverify?secret=${"6LeJ1pQhAAAAADZKFPssfPbinx5ue3Rb6OVu5gJn"}&response=${token}`)
         .then(res => {
             console.log(res.data)
             const dt = res.data
